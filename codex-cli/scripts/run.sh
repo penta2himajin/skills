@@ -5,21 +5,27 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  run.sh [--model astra|luna|<slug>] [--high]
+  run.sh [--model astra|luna|sol|<slug>] [--high|--max]
          [--sandbox read-only|workspace-write|danger-full-access]
          [--workdir DIR] [--] PROMPT...
 
 Aliases:
   astra -> gpt-6-astra
   luna  -> gpt-6-luna
+  sol   -> gpt-6-sol
 
 Effort:
   default -> low
   --high  -> high
+  --max   -> max
+
+Note: the aliases are this script's, not Codex's. Bare "sol", "luna" and "astra"
+are rejected by the ChatGPT account; the full slugs above are what works.
 
 Examples:
   run.sh --model astra "Summarize this repo"
   run.sh --model astra --high "Hard refactor"
+  run.sh --model sol --max --workdir "$PWD" "Adversarial review of this repo"
 EOF
 }
 
@@ -41,6 +47,7 @@ resolve_model() {
   case "$1" in
     astra|Astra|ASTRA|gpt-6-astra) printf '%s\n' "gpt-6-astra" ;;
     luna|Luna|LUNA|gpt-6-luna) printf '%s\n' "gpt-6-luna" ;;
+    sol|Sol|SOL|gpt-6-sol) printf '%s\n' "gpt-6-sol" ;;
     *) printf '%s\n' "$1" ;;
   esac
 }
@@ -64,6 +71,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --high)
       EFFORT="high"
+      shift
+      ;;
+    --max)
+      EFFORT="max"
       shift
       ;;
     -s|--sandbox)

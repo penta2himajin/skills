@@ -4,7 +4,7 @@ Personal Cursor Agent Skills for CLI coding agents.
 
 | Skill | Purpose |
 |-------|---------|
-| `codex-cli` | OpenAI Codex CLI (`astra` / `luna`), effort `low` default, `--high` optional |
+| `codex-cli` | OpenAI Codex CLI (`astra` / `luna` / `sol`), effort `low` default, `--high` / `--max` optional |
 | `opencode-go` | OpenCode Go, default `MiMo-V2.6-Flash` |
 | `ollama-cli` | Local Ollama CLI cloud models (`glm-5.3-flash` / `deepseek-v4.1-flash`) |
 
