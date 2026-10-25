@@ -2,7 +2,7 @@
 
 ほかの人が公開しているスキルのうち、手元に入れて使っているものの一覧。
 中身はこのリポジトリにコピーせず、出典から直接入れる。コマンドは 2026-10-26 時点の各リポジトリの README に従った。
-例外は japanese-tech-writing で、微調整を加えた版をこのリポジトリに置いている（[末尾の節](#japanese-tech-writing)）。
+例外は research と japanese-tech-writing で、微調整を加えた版をこのリポジトリに置いている（[research の節](#research-を微調整した版)、[japanese-tech-writing の節](#japanese-tech-writing)）。
 
 ## 特におすすめ：mattpocock/skills の grilling と research
 
@@ -17,6 +17,18 @@
 
 ```sh
 npx skills add mattpocock/skills --skill grilling --skill research -g
+```
+
+### research を微調整した版
+
+このリポジトリの [`skills/research`](skills/research/SKILL.md) は、research に、調べものを任されたエージェント向けの規則を3つ足した版である。ライセンスは元と同じ MIT で、ディレクトリに元のリポジトリの [LICENSE](skills/research/LICENSE) を置いた。
+
+- research を実行しているエージェントは、research を再び呼ばない。読むだけの補助の問いは1段まで別のエージェントに渡してよいが、ファイルを書くのは本人だけとする。
+- 見つからなかったと報告するときは、どこを探したかと、読むなと言われたものを書く。
+- 書いた後、判断の根拠になる主張（要約とその主な数値）を、別のコンテキストで、できれば別のモデルに、引用した出典と照合させる。
+
+```sh
+npx skills add penta2himajin/skills --skill research -g
 ```
 
 リポジトリには、ほかにも 30 余りのスキルがある。まとめて入れる場合は Claude Code のプラグインとして入れる。
@@ -34,6 +46,17 @@ claude plugin install mattpocock-skills@claude-plugins-official
 ```sh
 claude plugin marketplace add ayghri/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
+```
+
+## ponytail
+
+出典: [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)（MIT）
+
+コードを書くときに、要件を満たす最小の解を選ばせる。新しく書く前に、その機能が本当に要るか、既存のコード・標準ライブラリ・プラットフォームの機能で足りるかを順に確かめさせ、頼まれていない抽象化や依存の追加を避けさせる。プラグインとして入れると、プラグインの SessionStart フックがセッションの開始時に規則を注入する。
+
+```sh
+claude plugin marketplace add DietrichGebert/ponytail
+claude plugin install ponytail@ponytail
 ```
 
 ## imozuru

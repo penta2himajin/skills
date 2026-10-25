@@ -10,12 +10,13 @@
   "plugins": [
     {
       "name": "penta2himajin-skills",
-      "description": "Antigravity CLI への作業の委任、compaction をまたぐ作業記録、日本語の技術文書の文章規範",
+      "description": "Antigravity CLI への作業の委任、compaction をまたぐ作業記録、一次情報に当たる調べもの、日本語の技術文書の文章規範",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/antigravity-cli",
         "./skills/save",
+        "./skills/research",
         "./skills/japanese-tech-writing"
       ]
     }
