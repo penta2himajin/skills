@@ -110,7 +110,7 @@ tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_t
 
 ## 設定の例
 
-- [examples/CLAUDE.example.md](examples/CLAUDE.example.md): i-have-adhd と japanese-tech-writing を併用するときの `~/.claude/CLAUDE.md`。返答の構成と文の書き方で、従うスキルを分ける
+- [examples/AGENTS.example.md](examples/AGENTS.example.md): i-have-adhd と japanese-tech-writing を併用するときの `~/.claude/CLAUDE.md`。返答の構成と文の書き方で、従うスキルを分ける
 
 ## ライセンス
 
