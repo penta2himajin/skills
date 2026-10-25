@@ -1,6 +1,6 @@
 # skills
 
-penta2himajin が自作したエージェント用のスキルと、微調整を加えて置いている他人のスキル1つ。ほかの人のスキルで手元に入れているものは [recommendation.md](recommendation.md) にまとめてある。
+penta2himajin が自作したエージェント用のスキルと、ほかの人のスキルに微調整を加えた版1つを置いている。手元に入れているほかの人のスキルは [recommendation.md](recommendation.md) にまとめてある。
 
 ## スキルの一覧
 
@@ -38,7 +38,7 @@ claude plugin install penta2himajin-skills@penta2himajin-skills
 
 ### Cursor に入れる
 
-clone したうえで、スキルのフォルダを Cursor の Agent Store の `skills/` か、プロジェクトの `.cursor/skills/` にリンクする。
+clone したうえで、スキルのディレクトリを Cursor の Agent Store の `skills/` か、プロジェクトの `.cursor/skills/` にリンクする。
 
 ```sh
 git clone https://github.com/penta2himajin/skills.git ~/skills
@@ -46,13 +46,13 @@ mkdir -p .cursor/skills
 ln -s ~/skills/skills/codex-cli .cursor/skills/codex-cli
 ```
 
-Cursor 用の3つは、スクリプトを直接実行しても使える。
+Cursor 用の3つのスキルは、スクリプトを直接実行しても使える。
 
 ```sh
 ~/skills/skills/codex-cli/scripts/run.sh --model astra -- "PROMPT"
 ```
 
-## スキルごとに必要なもの
+## スキルごとの前提条件
 
 - **antigravity-cli**: Antigravity CLI（`agy`）とそのログイン
 - **save**: 下の「save のフック」の設定。`jq` と `python3`
@@ -86,7 +86,7 @@ Cursor 用の3つは、スクリプトを直接実行しても使える。
 }
 ```
 
-`nudge.sh` は、コンテキストが 600K トークン（環境変数 `SAVE_NUDGE_TOKENS` で変えられる）を超えたときに `/save` を勧める。トークン数は `~/.claude/statusline/ctx/<セッション ID>` から読むので、ステータスラインのスクリプトでこのファイルを書き出しておく必要がある。
+`nudge.sh` は、コンテキストの量が 600K トークン（環境変数 `SAVE_NUDGE_TOKENS` で変えられる）を超えたときに `/save` の実行を促す。トークン数は `~/.claude/statusline/ctx/<セッション ID>` から読むので、ステータスラインのスクリプトでこのファイルを書き出しておく必要がある。
 
 ```sh
 input=$(cat)
@@ -95,8 +95,8 @@ tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_t
 [ -n "$sid" ] && [ -n "$tokens" ] && mkdir -p "$HOME/.claude/statusline/ctx" && printf '%s' "$tokens" >"$HOME/.claude/statusline/ctx/$sid"
 ```
 
-`restore.sh` はファイルの更新時刻を BSD の `stat -f` で取るので、そのままでは macOS でしか動かない。
+`restore.sh` は記録ファイルの更新時刻を BSD 版の `stat -f` で取得するので、GNU 版の `stat` を使う Linux ではそのままでは動かない。
 
 ## ライセンス
 
-[MIT](LICENSE)。ただし `skills/japanese-tech-writing` は Unlicense で、[フォルダ内の LICENSE](skills/japanese-tech-writing/LICENSE) に従う。
+[MIT](LICENSE)。ただし `skills/japanese-tech-writing` は Unlicense で、[ディレクトリ内の LICENSE](skills/japanese-tech-writing/LICENSE) に従う。
