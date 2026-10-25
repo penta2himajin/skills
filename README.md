@@ -108,6 +108,10 @@ tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_t
 [ -n "$sid" ] && [ -n "$tokens" ] && mkdir -p "$HOME/.claude/statusline/ctx" && printf '%s' "$tokens" >"$HOME/.claude/statusline/ctx/$sid"
 ```
 
+## 設定の例
+
+- [examples/CLAUDE.example.md](examples/CLAUDE.example.md): i-have-adhd と japanese-tech-writing を併用するときの `~/.claude/CLAUDE.md`。返答の構成と文の書き方で、従うスキルを分ける
+
 ## ライセンス
 
 [MIT](LICENSE)。ただし `skills/research` は Matt Pocock の著作権表示を含む MIT で、[ディレクトリ内の LICENSE](skills/research/LICENSE) に従う。`skills/japanese-tech-writing` は Unlicense で、[ディレクトリ内の LICENSE](skills/japanese-tech-writing/LICENSE) に従う。
