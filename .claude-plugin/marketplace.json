@@ -1,0 +1,22 @@
+{
+  "name": "penta2himajin-skills",
+  "owner": {
+    "name": "Kenya Nara (penta2himajin)"
+  },
+  "metadata": {
+    "description": "penta2himajin が自作した Claude Code 用のスキル",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "penta2himajin-skills",
+      "description": "Antigravity CLI への作業の委任と、compaction をまたぐ作業記録",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/antigravity-cli",
+        "./skills/save"
+      ]
+    }
+  ]
+}

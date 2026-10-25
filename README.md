@@ -1,45 +1,101 @@
 # skills
 
-Personal Cursor Agent Skills for CLI coding agents.
+penta2himajin が自作したエージェント用のスキル。ほかの人のスキルで手元に入れているものは [recommendation.md](recommendation.md) にまとめてある。
 
-| Skill | Purpose |
-|-------|---------|
-| `codex-cli` | OpenAI Codex CLI (`astra` / `luna` / `sol`), effort `low` default, `--high` / `--max` optional |
-| `opencode-go` | OpenCode Go, default `MiMo-V2.6-Flash` |
-| `ollama-cli` | Local Ollama CLI cloud models (`glm-5.3-flash` / `deepseek-v4.1-flash`) |
+## スキルの一覧
 
-## Install on another machine
+| スキル | 内容 | 想定するエージェント |
+|---|---|---|
+| [`antigravity-cli`](skills/antigravity-cli/SKILL.md) | Google Antigravity CLI（`agy`）を非対話モードで呼び、作業を委任する。`agy` に校正させ、修正案を Claude が判定して適用するモードもある | Claude Code |
+| [`save`](skills/save/SKILL.md) | セッションの作業状態を記録ファイルに書き出し、compaction の後にフックで読み戻す | Claude Code |
+| [`codex-cli`](skills/codex-cli/SKILL.md) | OpenAI Codex CLI（`astra` / `luna` / `sol`）を呼ぶ。effort は `low` が既定で、`--high` / `--max` も指定できる | Cursor |
+| [`opencode-go`](skills/opencode-go/SKILL.md) | OpenCode Go を呼ぶ。既定のモデルは `MiMo-V2.6-Flash` | Cursor |
+| [`ollama-cli`](skills/ollama-cli/SKILL.md) | ローカルの Ollama CLI からクラウドモデル（`glm-5.3-flash` / `deepseek-v4.1-flash`）を呼ぶ | Cursor |
 
-```bash
-git clone git@github.com:penta2himajin/skills.git ~/skills
-# or: gh repo clone penta2himajin/skills ~/skills
+## 入れ方
+
+### skills CLI で入れる
+
+[skills CLI](https://github.com/vercel-labs/skills) は `skills/` 配下のスキルを見つけ、指定したエージェントのディレクトリに入れる。
+
+```sh
+# 一覧から選ぶ
+npx skills add penta2himajin/skills -g
+
+# 名前を指定する
+npx skills add penta2himajin/skills --skill save --skill antigravity-cli -g -a claude-code
 ```
 
-### Option A — Cursor personal Agent Store
+### Claude Code のプラグインとして入れる
 
-Copy (or symlink) skill folders into your user Agent Store `skills/` directory, then restart Cursor / start a new agent chat so they are discovered.
+Claude Code 用の2つ（`antigravity-cli`、`save`）を、1つのプラグインとしてまとめて入れる。
 
-### Option B — project skills
+```sh
+claude plugin marketplace add penta2himajin/skills
+claude plugin install penta2himajin-skills@penta2himajin-skills
+```
 
-```bash
+### Cursor に入れる
+
+clone したうえで、スキルのフォルダを Cursor の Agent Store の `skills/` か、プロジェクトの `.cursor/skills/` にリンクする。
+
+```sh
+git clone https://github.com/penta2himajin/skills.git ~/skills
 mkdir -p .cursor/skills
-ln -s ~/skills/codex-cli .cursor/skills/codex-cli
-ln -s ~/skills/opencode-go .cursor/skills/opencode-go
-ln -s ~/skills/ollama-cli .cursor/skills/ollama-cli
+ln -s ~/skills/skills/codex-cli .cursor/skills/codex-cli
 ```
 
-### Option C — run scripts directly
+Cursor 用の3つは、スクリプトを直接実行しても使える。
 
-```bash
-~/skills/codex-cli/scripts/run.sh --model astra -- "PROMPT"
-~/skills/opencode-go/scripts/run.sh --model mimo -- "PROMPT"
-~/skills/ollama-cli/scripts/run.sh --model glm -- "PROMPT"
+```sh
+~/skills/skills/codex-cli/scripts/run.sh --model astra -- "PROMPT"
 ```
 
-Each skill’s `SKILL.md` has flags, model aliases, and requirements.
+## スキルごとに必要なもの
 
-## Requirements (by skill)
+- **antigravity-cli**: Antigravity CLI（`agy`）とそのログイン
+- **save**: 下の「save のフック」の設定。`jq` と `python3`
+- **codex-cli**: ChatGPT デスクトップ版か Codex CLI と、ChatGPT のログイン
+- **opencode-go**: OpenCode CLI と OpenCode Go の認証
+- **ollama-cli**: Ollama と、クラウドモデル用の `ollama signin`
 
-- **codex-cli**: ChatGPT desktop / Codex CLI + ChatGPT login
-- **opencode-go**: OpenCode CLI + OpenCode Go auth
-- **ollama-cli**: Ollama + `ollama signin` for cloud models
+## save のフック
+
+`save` は、記録を書き出す部分だけならスキル単体で動く。compaction の後に記録を自動で読み戻すには、`~/.claude/settings.json` に次のフックを足す。パスは `~/.claude/skills/save` に入れた場合の例である。
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          { "type": "command", "command": "sh \"$HOME/.claude/skills/save/scripts/restore.sh\"", "timeout": 10 }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "sh \"$HOME/.claude/skills/save/scripts/nudge.sh\"", "timeout": 5 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`nudge.sh` は、コンテキストが 600K トークン（環境変数 `SAVE_NUDGE_TOKENS` で変えられる）を超えたときに `/save` を勧める。トークン数は `~/.claude/statusline/ctx/<セッション ID>` から読むので、ステータスラインのスクリプトでこのファイルを書き出しておく必要がある。
+
+```sh
+input=$(cat)
+sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
+tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens) // empty')
+[ -n "$sid" ] && [ -n "$tokens" ] && mkdir -p "$HOME/.claude/statusline/ctx" && printf '%s' "$tokens" >"$HOME/.claude/statusline/ctx/$sid"
+```
+
+`restore.sh` はファイルの更新時刻を BSD の `stat -f` で取るので、そのままでは macOS でしか動かない。
+
+## ライセンス
+
+[MIT](LICENSE)

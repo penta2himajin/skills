@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["edits"],
+  "properties": {
+    "edits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "old", "new", "reason"],
+        "properties": {
+          "id": { "type": "integer" },
+          "old": { "type": "string" },
+          "new": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
