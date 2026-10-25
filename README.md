@@ -1,6 +1,6 @@
 # skills
 
-penta2himajin が自作したエージェント用のスキル。ほかの人のスキルで手元に入れているものは [recommendation.md](recommendation.md) にまとめてある。
+penta2himajin が自作したエージェント用のスキルと、微調整を加えて置いている他人のスキル1つ。ほかの人のスキルで手元に入れているものは [recommendation.md](recommendation.md) にまとめてある。
 
 ## スキルの一覧
 
@@ -8,6 +8,7 @@ penta2himajin が自作したエージェント用のスキル。ほかの人の
 |---|---|---|
 | [`antigravity-cli`](skills/antigravity-cli/SKILL.md) | Google Antigravity CLI（`agy`）を非対話モードで呼び、作業を委任する。`agy` に校正させ、修正案を Claude が判定して適用するモードもある | Claude Code |
 | [`save`](skills/save/SKILL.md) | セッションの作業状態を記録ファイルに書き出し、compaction の後にフックで読み戻す | Claude Code |
+| [`japanese-tech-writing`](skills/japanese-tech-writing/SKILL.md) | 日本語の技術文書の文章規範。k16shikano 氏の gist に微調整を加えた版で、ライセンスは Unlicense（[recommendation.md](recommendation.md#japanese-tech-writing)） | 問わない |
 | [`codex-cli`](skills/codex-cli/SKILL.md) | OpenAI Codex CLI（`astra` / `luna` / `sol`）を呼ぶ。effort は `low` が既定で、`--high` / `--max` も指定できる | Cursor |
 | [`opencode-go`](skills/opencode-go/SKILL.md) | OpenCode Go を呼ぶ。既定のモデルは `MiMo-V2.6-Flash` | Cursor |
 | [`ollama-cli`](skills/ollama-cli/SKILL.md) | ローカルの Ollama CLI からクラウドモデル（`glm-5.3-flash` / `deepseek-v4.1-flash`）を呼ぶ | Cursor |
@@ -28,7 +29,7 @@ npx skills add penta2himajin/skills --skill save --skill antigravity-cli -g -a c
 
 ### Claude Code のプラグインとして入れる
 
-Claude Code 用の2つ（`antigravity-cli`、`save`）を、1つのプラグインとしてまとめて入れる。
+`antigravity-cli`、`save`、`japanese-tech-writing` の3つを、1つのプラグインとしてまとめて入れる。
 
 ```sh
 claude plugin marketplace add penta2himajin/skills
@@ -98,4 +99,4 @@ tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_t
 
 ## ライセンス
 
-[MIT](LICENSE)
+[MIT](LICENSE)。ただし `skills/japanese-tech-writing` は Unlicense で、[フォルダ内の LICENSE](skills/japanese-tech-writing/LICENSE) に従う。

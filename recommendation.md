@@ -2,6 +2,7 @@
 
 ほかの人が公開しているスキルのうち、手元に入れて使っているものの一覧。
 中身はこのリポジトリにコピーせず、出典から直接入れる。コマンドは 2026-10-26 時点の各リポジトリの README に従った。
+例外は japanese-tech-writing で、微調整を加えた版をこのリポジトリに置いている（[末尾の節](#japanese-tech-writing)）。
 
 ## 特におすすめ：mattpocock/skills の grilling と research
 
@@ -47,3 +48,34 @@ claude plugin install imozuru@imozuru
 ```
 
 Claude Code 以外のエージェントに入れる場合は `npx skills add MaryCache/imozuru` を使う。
+
+## japanese-tech-writing
+
+出典: [k16shikano 氏の gist](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d)（Unlicense）
+
+日本語の技術文書を書くときと推敲するときの文章規範。パラグラフライティング、論証の厳密さ、読み手の負荷の管理、LLM が生成しがちな空句や翻訳調の比喩の禁止などを定める。
+
+### ライセンス
+
+元の gist は public で、k16shikano 氏は自身の public gist すべてに Unlicense を適用すると宣言している。以下は[ライセンス宣言の gist](https://gist.github.com/k16shikano/67625f2a7d96e3bbdfae8d571a936063) の `Readme.ja.md` からの引用である。
+
+> k16shikanoのpublic gistには、すべてUnlicenseを適用します。
+> つまり、著作権上の権利をパブリックドメインに献呈する意思を示します。
+> 日本のように完全なパブリックドメイン化が明確でない法域では、実務上はパブリックドメイン相当の利用を許すものとします。
+
+このリポジトリの [`skills/japanese-tech-writing`](skills/japanese-tech-writing/SKILL.md) は、改変した部分も含めて Unlicense とする。フォルダに [LICENSE](skills/japanese-tech-writing/LICENSE) として Unlicense の本文を置いた。リポジトリのほかの部分の MIT は、このフォルダには適用しない。
+
+### このリポジトリの版で加えた変更
+
+gist の 2026-09-09 の版（リビジョン `8f2d576`）に、次の微調整を加えた。
+
+- 術語の選び方の規則に、カタカナや英語のまま定着した術語を一般語に訳さない旨を足した（client secret は「クライアントの秘密」ではなく「クライアントシークレット」）。
+- 定義していない造語で区分を名付けない規則を足した。
+- 「推測を比喩で書かない」の節を足した。「読み」「見立て」「肌感」のような比喩の名詞で推測を書かず、「推測」「仮説」のような普通の語で主張の地位を示す。
+- 上の節に合わせて、`description` に一句を足した。
+
+元の版を入れる場合は gist の `SKILL.md` を、このリポジトリの版を入れる場合は次のコマンドを使う。
+
+```sh
+npx skills add penta2himajin/skills --skill japanese-tech-writing -g
+```

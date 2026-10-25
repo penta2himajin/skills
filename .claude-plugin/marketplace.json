@@ -4,18 +4,19 @@
     "name": "Kenya Nara (penta2himajin)"
   },
   "metadata": {
-    "description": "penta2himajin が自作した Claude Code 用のスキル",
+    "description": "penta2himajin の Claude Code 用のスキル",
     "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "penta2himajin-skills",
-      "description": "Antigravity CLI への作業の委任と、compaction をまたぐ作業記録",
+      "description": "Antigravity CLI への作業の委任、compaction をまたぐ作業記録、日本語の技術文書の文章規範",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/antigravity-cli",
-        "./skills/save"
+        "./skills/save",
+        "./skills/japanese-tech-writing"
       ]
     }
   ]
