@@ -1,5 +1,5 @@
 #!/bin/sh
-# /save の補助。path: 記録ファイルのパスを出す。commit: 読み戻し用の印を置き、記録を git にコミットする。
+# /save の補助。path: 記録ファイルのパスを出す。commit: 読み戻し待ちを表すファイル（save-pending）を置き、記録を git にコミットする。
 # 記録はセッションの transcript と同じディレクトリ（~/.claude/projects/<作業ディレクトリ>/）の save/ に置く。
 # transcript の場所から決めるので、セッション中に cd しても場所は変わらない。
 cmd=$1 sid=$2

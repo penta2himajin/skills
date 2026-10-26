@@ -139,7 +139,7 @@ AGENTS.md は「コーディングエージェント向けの README」と位置
 補足:
 
 - Codex の `project_doc_max_bytes` はプロジェクトの AGENTS.md の合計に掛かる。ソースでは、グローバルの `~/.codex/AGENTS.md` はこの予算の外で読まれ、切り詰められない。`load_project_instructions` は予算 `remaining` を `project_doc_max_bytes` から始め、プロジェクトのファイルを読むたびに減らすが、グローバルの指示はこの関数に渡される前に読まれていて予算を減らさない（[agents_md.rs](https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/core/src/agents_md.rs)、[mod.rs](https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/codex-home/src/instructions/mod.rs)）。文書はこの区別を書いていない。
-- Antigravity の 24,000 バイトはバイト数である。日本語は UTF-8 で 1 文字 3 バイトになるので、文字数では 8,000 字前後で上限に届く。このリポジトリの `skills/japanese-tech-writing/SKILL.md` は、frontmatter を除いて 9,339 文字、26,733 バイトある（2026-10-26 に `wc -m` と `wc -c` で計測）。
+- Antigravity の 24,000 バイトはバイト数である。日本語は UTF-8 で 1 文字 3 バイトになるので、文字数では 8,000 字前後で上限に届く。このリポジトリの `skills/japanese-tech-writing/SKILL.md` は、frontmatter を除いて 9,416 文字、26,918 バイトある（2026-10-26 に `wc -m` と `wc -c` で計測）。
 - Agent Skills の仕様は SKILL.md 本文を 5,000 トークン未満、500 行未満にするよう推奨する（[agentskills.io/specification](https://agentskills.io/specification)）。
 
 ## 5. 一つの指示ファイルを複数のエージェントで共有する方法
@@ -218,7 +218,7 @@ Codex の文書は `~/.codex/skills` について何も書いていない（[bui
 - import に頼らない書き方は二つある。
   - 規範の本文（または要点）を AGENTS.md に直接書く。
   - スキルのパスを示して読むよう指示する文を書く。ただしこれは Cursor と OpenCode の文書が示すとおりモデル任せで、常時読み込みにはならない。例でこの方法を採るなら、常時有効にはならないことを明記する。
-- 本文を直接書く場合はサイズに注意する。`japanese-tech-writing/SKILL.md` の本文は 26,733 バイトで、Antigravity の 1 ファイル 24,000 バイトの上限を超え、切り詰められる。Codex のグローバルファイルはソース上は `project_doc_max_bytes`（32 KiB）の外だが、プロジェクトの AGENTS.md は 32 KiB を共有する。Claude Code は 200 行未満を推奨している。全文を転記するより、優先順位の一文と、チャットの返答で守らせたい要点だけを書くほうが、どのエージェントでも上限に収まる。
+- 本文を直接書く場合はサイズに注意する。`japanese-tech-writing/SKILL.md` の本文は 26,918 バイトで、Antigravity の 1 ファイル 24,000 バイトの上限を超え、切り詰められる。Codex のグローバルファイルはソース上は `project_doc_max_bytes`（32 KiB）の外だが、プロジェクトの AGENTS.md は 32 KiB を共有する。Claude Code は 200 行未満を推奨している。全文を転記するより、優先順位の一文と、チャットの返答で守らせたい要点だけを書くほうが、どのエージェントでも上限に収まる。
 - Claude Code だけは `~/.claude/CLAUDE.md` に `@` 行を残せば全文を常時読み込める。例を「共通の AGENTS.md（要点）」と「Claude Code 用の `~/.claude/CLAUDE.md`（`@<AGENTS.md の実体>` と `@~/.claude/skills/japanese-tech-writing/SKILL.md`）」の二段に分ける構成が、文書化された挙動と矛盾しない。OpenCode は `~/.config/opencode/AGENTS.md` があれば `~/.claude/CLAUDE.md` を読まないので、二段構成でも二重読み込みにはならない。
 - スキルの定義で全セッションに常時読み込ませる方法は、どのエージェントにも文書化されていない（Cursor の Custom Mode は一つのセッションだけ、Claude Code の事前読み込みはサブエージェントの中だけ）。「スキルとして入れただけでは、必要と判断されたときしか読み込まれない」という現行の例の説明は、他のエージェントにもそのまま当てはまる（第 6 節）。
 - japanese-tech-writing をスキルとしても入れておくなら、`~/.agents/skills/` に置くと Codex、Gemini CLI、OpenCode、Cursor、Copilot、pi が読む。Claude Code と Antigravity はこのディレクトリを文書化していないので、`~/.claude/skills/` と `~/.gemini/antigravity-cli/skills/`（`agy`）へのリンクか複製が別に要る。

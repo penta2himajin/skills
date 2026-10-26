@@ -1,7 +1,7 @@
 #!/bin/sh
 # UserPromptSubmit フック。ステータスラインが書き出したコンテキスト量が
 # しきい値を超えていたら、/save を勧める文を一度だけ注入する。
-# compaction などで量がしきい値を下回ったら印を消し、次に超えたときにまた注入する。
+# compaction などで量がしきい値を下回ったら通知済みのフラグファイルを消し、次に超えたときにまた注入する。
 threshold=${SAVE_NUDGE_TOKENS:-600000}
 sid=$(jq -r '.session_id // empty' 2>/dev/null)
 [ -n "$sid" ] || exit 0

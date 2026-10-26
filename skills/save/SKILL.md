@@ -37,7 +37,7 @@ SessionStart フックが注入した記録は、前の自分が書いた未検�
    - 古くなった項目、解決した項目、現状と矛盾する項目は消す。追記だけを重ねない。
    - 「ユーザーのルール・制約」は、ユーザーが変えたときだけ直す。自分の言葉に言い換えない。
 4. 下の「書き方の規則」の点検をする。
-5. `sh "${CLAUDE_SKILL_DIR}/scripts/finish.sh" commit "${CLAUDE_SESSION_ID}" "<記録の要点を1行で>"` を実行する。読み戻し用の印を置き、記録をコミットする。
+5. `sh "${CLAUDE_SKILL_DIR}/scripts/finish.sh" commit "${CLAUDE_SESSION_ID}" "<記録の要点を1行で>"` を実行する。読み戻し待ちを表すファイル（`save-pending`）を置き、記録をコミットする。
 6. ユーザーへの返答は2行にする。1行目に記録したことの要点、2行目に「`/compact` か `/clear` の後に、この記録が自動で読み込まれます」。rate limit の警告で書いたときは、2行目を「セッションを閉じ、制限が解けてから起動すると、この記録が自動で読み込まれます」にする。
 
 ## 書き方の規則
@@ -45,7 +45,7 @@ SessionStart フックが注入した記録は、前の自分が書いた未検�
 - ユーザーの依頼とルールは原文で引用する。
 - ファイルパス、関数名、コミット、URL、エラー文は言い換えずにコードスパンで書く。コードはリポジトリにあるなら写さず、パスとシンボル名で示す。
 - 日時は絶対表記で書く。「さっき」「昨日」は使わない。
-- 事実には出典を付ける。推測は「推測:」と書いて事実と分ける。完了の印は確認した手段があるときだけ付ける。
+- 事実には出典を付ける。推測は「推測:」と書いて事実と分ける。完了のチェック（`[x]`）は確認した手段があるときだけ付ける。
 - 「検証」には、次のセッションがそのまま実行できるコマンドと、いまの期待値を書く。期待値は数で書く（「12 件成功、2 件失敗。失敗の 2 件は既知で理由は〜」）。「ほぼ通る」のようには書かない。
 - 失敗した試みは、駄目だった理由とともに残す。却下した案は、再提案しないよう理由を添える。
 - ファイルの中身、コマンドの出力、ログは写さない。パスとコマンドだけを残し、再読先か検証に書く。
@@ -62,7 +62,7 @@ SessionStart フックが注入した記録は、前の自分が書いた未検�
 
 - 記録の場所: `~/.claude/projects/<作業ディレクトリ>/save/<セッション ID>.md`。transcript と同じディレクトリに置く。
 - コミット: `scripts/finish.sh commit` が、記録のディレクトリの git リポジトリ（なければ作る）に `save/` をコミットする。
-- 読み戻し: `scripts/restore.sh`（SessionStart）が記録を注入する。compact では同じセッションの記録を、startup / resume / clear では `finish.sh` が置いた印の記録を一度だけ注入する。印の記録が 24 時間より古ければ注入しない。注入は 9,000 文字まで。
+- 読み戻し: `scripts/restore.sh`（SessionStart）が記録を注入する。compact では同じセッションの記録を、startup / resume / clear では `finish.sh` が置いた `save-pending` ファイルが指す記録を一度だけ注入する。その記録が 24 時間より古ければ注入しない。注入は 9,000 文字まで。
 - 要約の誘導: `scripts/precompact.sh`（PreCompact）が、この「書き方の規則」と記録の構成を compaction の要約への追加指示として出す。
 - 推奨: `scripts/nudge.sh`（UserPromptSubmit）が 600K トークン超で /save を勧める。値はステータスラインが書く。
 - 設計の根拠: [references/anthropic-docs.md](references/anthropic-docs.md)、[references/context-research.md](references/context-research.md)、[references/github-skills.md](references/github-skills.md)
