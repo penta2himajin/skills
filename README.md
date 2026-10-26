@@ -110,7 +110,7 @@ tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_t
 
 ## 設定の例
 
-- [examples/AGENTS.example.md](examples/AGENTS.example.md): i-have-adhd と japanese-tech-writing を併用するときの `~/.claude/CLAUDE.md`。返答の構成と文の書き方で、従うスキルを分ける
+- [examples/AGENTS.example.md](examples/AGENTS.example.md): i-have-adhd と japanese-tech-writing を併用するときの、エージェントに共通の AGENTS.md と Claude Code 用の `~/.claude/CLAUDE.md`。返答の構成と文の書き方で、従うスキルを分ける。エージェントごとの置き場所と import 記法の対応は [docs/agents-md.md](docs/agents-md.md) にまとめてある
 
 ## ライセンス
 
