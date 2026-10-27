@@ -33,7 +33,7 @@ SessionStart フックが注入した記録は、前の自分が書いた未検�
    - このセッションが前の記録から再開していれば（SessionStart フックが注入した記録がある）、その記録を記録ファイルへ `cp` し、下の手順 3 で直す。ID の番号は引き継ぐ。
    - そうでなければ、[references/template.md](references/template.md) の構成で書く。
 3. 記録ファイルがあれば、まず読む。そのうえで全体を書き直さず、Edit で項目単位に直す。
-   - 新しい事実・決定・失敗は、次の番号の ID で足す。
+   - 新しい事実・決定・失敗は、次の番号の ID で追加する。
    - 古くなった項目、解決した項目、現状と矛盾する項目は消す。追記だけを重ねない。
    - 「ユーザーのルール・制約」は、ユーザーが変えたときだけ直す。自分の言葉に言い換えない。
 4. 下の「書き方の規則」の点検をする。
@@ -63,6 +63,6 @@ SessionStart フックが注入した記録は、前の自分が書いた未検�
 - 記録の場所: `~/.claude/projects/<作業ディレクトリ>/save/<セッション ID>.md`。transcript と同じディレクトリに置く。
 - コミット: `scripts/finish.sh commit` が、記録のディレクトリの git リポジトリ（なければ作る）に `save/` をコミットする。
 - 読み戻し: `scripts/restore.sh`（SessionStart）が記録を注入する。compact では同じセッションの記録を、startup / resume / clear では `finish.sh` が置いた `save-pending` ファイルが指す記録を一度だけ注入する。その記録が 24 時間より古ければ注入しない。注入は 9,000 文字まで。
-- 要約の誘導: `scripts/precompact.sh`（PreCompact）が、この「書き方の規則」と記録の構成を compaction の要約への追加指示として出す。
+- 要約の誘導: `scripts/precompact.sh`（PreCompact）が、この「書き方の規則」と記録の構成を compaction の要約への追加指示として出力する。
 - 推奨: `scripts/nudge.sh`（UserPromptSubmit）が 600K トークン超で /save を勧める。値はステータスラインが書く。
 - 設計の根拠: [references/anthropic-docs.md](references/anthropic-docs.md)、[references/context-research.md](references/context-research.md)、[references/github-skills.md](references/github-skills.md)

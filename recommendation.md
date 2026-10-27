@@ -21,7 +21,7 @@ npx skills add mattpocock/skills --skill grilling --skill research -g
 
 ### research を微調整した版
 
-このリポジトリの [`skills/research`](skills/research/SKILL.md) は、research に、調べものを任されたエージェント向けの規則を3つ足した版である。ライセンスは元と同じ MIT で、ディレクトリに元のリポジトリの [LICENSE](skills/research/LICENSE) を置いた。
+このリポジトリの [`skills/research`](skills/research/SKILL.md) は、research に、調べものを任されたエージェント向けの規則を3つ追加した版である。ライセンスは元と同じ MIT で、ディレクトリに元のリポジトリの [LICENSE](skills/research/LICENSE) を置いた。
 
 - research を実行しているエージェントは、research を再び呼ばない。読むだけの補助の問いは1段まで別のエージェントに渡してよいが、ファイルを書くのは本人だけとする。
 - 見つからなかったと報告するときは、どこを探したかと、読むなと言われたものを書く。

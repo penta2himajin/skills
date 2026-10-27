@@ -25,7 +25,7 @@
 
 - コンテキストが上限に近づくと、Claude Code はまず古いツール出力を消し、必要ならその後で会話を要約する。要求と主要なコード断片は残るが、会話の早い段階で与えた詳細な指示は失われることがある。恒久的なルールは会話履歴に頼らず CLAUDE.md に置くよう推奨されている。
   - https://code.claude.com/docs/en/how-claude-code-works#when-context-fills-up
-- 単一のファイルやツール出力が大きすぎて要約直後にまた満杯になる場合、数回試した後に自動コンパクションを止めてエラーを出す（ループしない）。
+- 単一のファイルやツール出力が大きすぎて要約直後にまた満杯になる場合、数回試した後に自動コンパクションを止めてエラーを返す（ループしない）。
   - https://code.claude.com/docs/en/how-claude-code-works#when-context-fills-up
 - 自動コンパクションが走る閾値（auto-compact window）は `/autocompact <tokens>`（例 `/autocompact 500k`）、設定キー `autoCompactWindow`、起動フラグ `--autocompact`、環境変数 `CLAUDE_CODE_AUTO_COMPACT_WINDOW`（100,000〜1,000,000）で変えられる。環境変数がほかより優先される。
   - https://code.claude.com/docs/en/model-config#set-the-auto-compact-window
@@ -134,7 +134,7 @@
 - 出力: decision control なし。コンパクション結果には影響できず、後続処理（要約のログ、外部状態の更新）に使う。`systemMessage` と `continue` は破棄。exit 2 は stderr をユーザーに見せるだけ。
   - hooks#postcompact
   - hooks#decision-control
-- PostCompact から Claude のコンテキストへ文を足す手段（`additionalContext` 等）の記載は無い。
+- PostCompact から Claude のコンテキストへ文を追加する手段（`additionalContext` 等）の記載は無い。
 
 ### SessionStart（source = compact）
 
@@ -142,17 +142,17 @@
   - hooks#sessionstart
 - 入力: 共通項目＋`source`（`"compact"` など）、任意で `model`（省略されることがある）、`agent_type`、`session_title`。`resume` / `fork` のときだけ追加で `seconds_since_last_response`、`context_tokens`、`prompt_cache_likely_expired`、`estimated_cache_write_usd`。
   - hooks#sessionstart-input
-- 出力: `hookSpecificOutput.additionalContext`（会話の先頭、最初のプロンプトの前に入る）、`initialUserMessage`（`-p` のみ）、`sessionTitle`（`startup`/`resume`/`fork` のときのみ適用）、`watchPaths`、`reloadSkills`。JSON を組まずに **プレーンテキストの stdout をそのままコンテキストに足せる**（SessionStart、UserPromptSubmit、UserPromptExpansion、PostModelSwitch の 4 イベントだけの特例）。
+- 出力: `hookSpecificOutput.additionalContext`（会話の先頭、最初のプロンプトの前に入る）、`initialUserMessage`（`-p` のみ）、`sessionTitle`（`startup`/`resume`/`fork` のときのみ適用）、`watchPaths`、`reloadSkills`。JSON を組まずに **プレーンテキストの stdout をそのままコンテキストに追加できる**（SessionStart、UserPromptSubmit、UserPromptExpansion、PostModelSwitch の 4 イベントだけの特例）。
   - hooks#sessionstart-decision-control
   - hooks#exit-code-0
 - `CLAUDE_ENV_FILE` に `export` を追記すると、以後の Bash コマンドに環境変数を引き継げる。
   - hooks#persist-environment-variables
-- 公式レシピ「Re-inject context after compaction」: `SessionStart` に `"matcher": "compact"` の command フックを置き、stdout にリマインダを出す。`echo` の代わりに `git log --oneline -5` のような動的出力も使える。
+- 公式レシピ「Re-inject context after compaction」: `SessionStart` に `"matcher": "compact"` の command フックを置き、stdout にリマインダを出力する。`echo` の代わりに `git log --oneline -5` のような動的出力も使える。
   ```json
   {"hooks":{"SessionStart":[{"matcher":"compact","hooks":[{"type":"command","command":"echo 'Reminder: use Bun, not npm. ...'"}]}]}}
   ```
   - https://code.claude.com/docs/en/hooks-guide#re-inject-context-after-compaction
-- context-window ページの表でも「`compact` source に一致する SessionStart フックは実行され、その出力がコンパクション後のコンテキストに足される」と明記。
+- context-window ページの表でも「`compact` source に一致する SessionStart フックは実行され、その出力がコンパクション後のコンテキストに追加される」と明記。
   - https://code.claude.com/docs/en/context-window#what-survives-compaction
 - SessionStart は毎セッション走るので速く保つこと。
   - hooks#sessionstart
@@ -168,7 +168,7 @@
   - hooks#add-context-for-claude
 - 文面は命令調のシステム指示ではなく事実の記述で書くよう推奨（例 "The deployment target is production"）。帯域外のシステム命令に見える文は Claude のプロンプトインジェクション防御を誘発し、文脈として扱われずユーザーに提示されることがある。`<system-reminder>` タグを含めると `<` が `&lt;` に置換される。
   - hooks#add-context-for-claude
-- 過去にフックが足した文脈は、コンパクション時に会話の他の部分と一緒に要約される。
+- 過去にフックが追加した文脈は、コンパクション時に会話の他の部分と一緒に要約される。
   - https://code.claude.com/docs/en/context-window#what-survives-compaction
 - stdout に JSON 以外（シェルプロファイルの echo など）が混ざると JSON として読まれない。
   - hooks#json-output
@@ -204,7 +204,7 @@
 | 呼び出したスキル本体 | 1 スキルあたり先頭 5,000 トークン、合計 25,000 トークンまで再注入。古いものから落ちる |
 | バックグラウンドのコマンド・サブエージェント | 動き続ける。重複起動しないよう Claude にリマインドされる |
 | フックが以前足した文脈 | 会話と一緒に要約される |
-| `compact` に一致する SessionStart フック | 実行され、出力がコンパクション後の文脈に足される |
+| `compact` に一致する SessionStart フック | 実行され、出力がコンパクション後の文脈に追加される |
 
 補足:
 
@@ -236,7 +236,7 @@
 - `name`: `/` メニューに出るコマンド名。既定はディレクトリ名。
 - `description`: 何をするか、いつ使うか。`when_to_use` と合わせてスキル一覧では 1,536 文字で切られるので、主用途を先に書く。
 - `when_to_use`: 起動条件の追加説明。`description` に連結され、1,536 文字の上限に数えられる。
-- `argument-hint`: 補完時に出す引数のヒント（例 `[issue-number]`）。
+- `argument-hint`: 補完時に表示する引数のヒント（例 `[issue-number]`）。
 - `arguments`: `$name` 置換用の名前付き位置引数。
 - `disable-model-invocation`: `true` で Claude の自動起動を禁止し、`/name` からの手動起動専用にする。説明文もコンテキストに入らない（呼ぶまでコストゼロ）。サブエージェントへのプリロードや、スキルを prompt にしたスケジュールタスクでの実行も止まる。
 - `user-invocable`: `false` で `/` メニューから隠し、Claude だけが呼べるようにする。
@@ -322,7 +322,7 @@ API／Agent Skills 側の制約（Claude Code 以外でも使う場合）:
 
 - クライアント側で実装するファイル操作ツール（`/memories` 配下、view / create / str_replace / insert / delete / rename）。just-in-time の文脈取得を支える。
   - https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
-- memory tool を有効にすると API が自動でシステムプロンプトに次を足す: 「ALWAYS VIEW YOUR MEMORY DIRECTORY BEFORE DOING ANYTHING ELSE. ... As you make progress, record status / progress / thoughts etc in your memory. ASSUME INTERRUPTION: Your context window might be reset at any moment, so you risk losing any progress that is not recorded in your memory directory.」
+- memory tool を有効にすると API が自動でシステムプロンプトに次を追加する: 「ALWAYS VIEW YOUR MEMORY DIRECTORY BEFORE DOING ANYTHING ELSE. ... As you make progress, record status / progress / thoughts etc in your memory. ASSUME INTERRUPTION: Your context window might be reset at any moment, so you risk losing any progress that is not recorded in your memory directory.」
   - https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool#prompting-guidance
 - コンパクションとの併用: コンパクションはクライアント側の管理なしに文脈を小さく保ち、メモリは要約を生き残るべき情報を保持する。
   - https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool#using-with-compaction
@@ -415,8 +415,8 @@ https://www.claude.com/blog/building-agents-with-the-claude-agent-sdk
 
 ## 8. 未確認事項
 
-- PreCompact フックが `additionalContext` 等で要約内容やコンパクション後の文脈に文を足せるか: ドキュメント上は不可（記載なし）。要約指示（`custom_instructions`）をフックから書き換える手段も記載なし。
-- PostCompact フックから Claude の文脈へ文を足す手段: 記載なし。
+- PreCompact フックが `additionalContext` 等で要約内容やコンパクション後の文脈に文を追加できるか: ドキュメント上は不可（記載なし）。要約指示（`custom_instructions`）をフックから書き換える手段も記載なし。
+- PostCompact フックから Claude の文脈へ文を追加する手段: 記載なし。
 - スキルの `hooks` frontmatter で登録した SessionStart(`compact`) / PreCompact / PostCompact が発火するか: 個別の記述なし。
 - CLAUDE.md の "Compact Instructions" が特別に解析されるのか、通常の CLAUDE.md 本文として要約時に参照されるだけなのか: 記載なし。見出しの綴りもページで揺れている。
 - Claude Code の要約プロンプト全文: 非公開（API の client-side SDK 用の既定プロンプトのみ公開）。
@@ -467,7 +467,7 @@ https://www.claude.com/blog/building-agents-with-the-claude-agent-sdk
 - 常に守るルール → プロジェクトルートの CLAUDE.md（コンパクション後にディスクから再注入される）。`paths:` 付き rules や nested CLAUDE.md は要約で消えうる。
 - セッションをまたいで残すべき教訓 → auto memory（MEMORY.md は先頭 200 行／25KB まで）。
 - 進行中タスクの状態 → /refresh の記録ファイル（＋git）。タスクリストもコンパクションをまたいで保持されるので、Claude Code がタスクツールを提供するモデルでは併用できる。
-- CLAUDE.md に Compact Instructions 節を足し、「記録ファイルのパスと次の一手を要約に必ず残す」と書いておくと、要約にポインタが残る（仕組みの詳細は未確認だが、公式に推奨された手段）。
+- CLAUDE.md に Compact Instructions 節を追加し、「記録ファイルのパスと次の一手を要約に必ず残す」と書いておくと、要約にポインタが残る（仕組みの詳細は未確認だが、公式に推奨された手段）。
 
 ### コンパクション後の復帰手順（SKILL.md 先頭に置く想定）
 

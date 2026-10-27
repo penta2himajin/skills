@@ -55,7 +55,7 @@ AGENTS.md の規約（[agents.md](https://agents.md)）が定めるのはリポ�
 | Gemini CLI | `~/.gemini/AGENTS.md`（Antigravity と同じファイル） | 上のリンクに加え、`~/.gemini/settings.json` の `context.fileName` に `["AGENTS.md", "GEMINI.md"]` を指定する。既定では `GEMINI.md` しか読まない |
 | OpenCode | `~/.config/opencode/AGENTS.md` | `ln -s ~/.agents/AGENTS.md ~/.config/opencode/AGENTS.md` |
 | pi | `~/.pi/agent/AGENTS.md` | `ln -s ~/.agents/AGENTS.md ~/.pi/agent/AGENTS.md` |
-| GitHub Copilot CLI | 環境変数 `COPILOT_CUSTOM_INSTRUCTIONS_DIRS` に挙げたディレクトリの `AGENTS.md` | シェルの設定に `export COPILOT_CUSTOM_INSTRUCTIONS_DIRS="$HOME/.agents"` を足す |
+| GitHub Copilot CLI | 環境変数 `COPILOT_CUSTOM_INSTRUCTIONS_DIRS` に挙げたディレクトリの `AGENTS.md` | シェルの設定に `export COPILOT_CUSTOM_INSTRUCTIONS_DIRS="$HOME/.agents"` を追加する |
 | Cursor | 設定画面の User Rules | AGENTS.md の本文を貼る。ファイルで渡す方法は文書化されていない |
 | Claude Code | `~/.claude/CLAUDE.md` | 次の節のとおり import する |
 
@@ -72,7 +72,7 @@ OpenCode は、`~/.config/opencode/AGENTS.md` がないときに `~/.claude/CLAU
 
 どちらの行も Claude Code の import 記法で、指したファイルの本文を CLAUDE.md の一部として毎セッション読み込ませる。1 行目で共通の AGENTS.md を、2 行目で規範の全文を読み込む。全文は共通の AGENTS.md の要点を含むので、二つを読み込んでも規則は矛盾しない。
 
-スキルとして入れただけでは、エージェントが日本語の技術文書を書くと判断したときにしか規範が読み込まれず、チャットの返答はこの判断に当たらないことが多い。2 行目の import でこれを補う。SessionStart フックで全文を注入しないのは、フックの出力の上限（10,000 文字）に近いためである。`SKILL.md` はフロントマターを除いて 10,002 文字あり、規則を足すと上限を超えて切り詰められる。
+スキルとして入れただけでは、エージェントが日本語の技術文書を書くと判断したときにしか規範が読み込まれず、チャットの返答はこの判断に当たらないことが多い。2 行目の import でこれを補う。SessionStart フックで全文を注入しないのは、フックの出力の上限（10,000 文字）に近いためである。`SKILL.md` はフロントマターを除いて 10,002 文字あり、規則を追加すると上限を超えて切り詰められる。
 
 ## 確かめ方
 
