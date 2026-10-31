@@ -15,6 +15,7 @@ if [ "$tokens" -lt "$threshold" ]; then
   exit 0
 fi
 [ -f "$mark" ] && exit 0
+mkdir -p "$(dirname "$mark")"
 : >"$mark"
 k=$((tokens / 1000))
 jq -n --arg msg "コンテキストは約${k}Kトークンで、/save の推奨しきい値（$((threshold / 1000))K）を超えている。いまの応答の最後に、ユーザーへ /save → /compact の実行を一行で勧める。" \
