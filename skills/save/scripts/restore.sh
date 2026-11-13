@@ -8,6 +8,9 @@ t=$(printf '%s' "$input" | jq -r '.transcript_path // empty' 2>/dev/null)
 [ -n "$sid" ] && [ -n "$t" ] || exit 0
 proj=$(dirname "$t")
 if [ "$src" = compact ]; then
+  # 自動保存モード（nudge.sh）を解除する。使用率はステータスラインの次の描画まで古い値が残るので、それも消す。
+  rm -f "$HOME/.claude/save/.over-$sid" "$HOME/.claude/save/.turn-$sid" "$HOME/.claude/save/.stamp-$sid" \
+    "$HOME/.claude/statusline/ctx/$sid.pct"
   rec="$proj/save/$sid.md"
   how="compaction 前に /save で書いた記録"
 else

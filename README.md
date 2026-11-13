@@ -90,6 +90,13 @@ Cursor 用の3つのスキルは、スクリプトを直接実行しても使え
           { "type": "command", "command": "sh \"$HOME/.claude/skills/save/scripts/nudge.sh\"", "timeout": 5 }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "sh \"$HOME/.claude/skills/save/scripts/guard.sh\"", "timeout": 5 }
+        ]
+      }
     ]
   }
 }
@@ -99,13 +106,19 @@ Cursor 用の3つのスキルは、スクリプトを直接実行しても使え
 - `precompact.sh` は、save の書き方の規則と記録の構成を compaction の要約への追加指示として出力する。PreCompact フックの標準出力が要約の指示に追加されるのは文書化されていない挙動で、Claude Code 2.1.308 で確かめた。挙動がなくなっても、通常の要約に戻るだけである。標準出力があると事前に用意された要約が使われないため、compaction は遅くなる。
 - 記録は `~/.claude/projects/<作業ディレクトリ>/save/` に置き、そのディレクトリの git リポジトリにコミットする。リポジトリがなければ作る。`git` が要る。
 
-`nudge.sh` は、コンテキストの量が 600K トークン（環境変数 `SAVE_NUDGE_TOKENS` で変えられる）を超えたときに `/save` の実行を促す。トークン数は `~/.claude/statusline/ctx/<セッション ID>` から読むので、ステータスラインのスクリプトでこのファイルを書き出しておく必要がある。
+`nudge.sh` と `guard.sh` は、コンテキストの使用率が 50%（環境変数 `SAVE_NUDGE_PERCENT` で変更できる）を超えたセッションを、compaction か `/clear` まで自動保存モードにする。
+
+- `nudge.sh`（UserPromptSubmit）は、初めてしきい値を超えたターンで `/save` の実行を指示し、以後のターンでは記録の更新とコミットを指示する。どのターンでも、応答の最後に `/compact` か `/clear` を勧めさせる。
+- `guard.sh`（Stop）は、そのターンに `finish.sh commit` が実行されていなければ、応答の終了を一度だけ止めて記録の更新を指示する。終了させるときは、`/compact` か `/clear` の実行を促す文をユーザーに表示する。
+- モードの状態は `~/.claude/save/.over-<セッション ID>` に置く。compaction では `restore.sh` がこれを削除する。`/clear` ではセッション ID が変わるので、新しいセッションは自動保存モードにならない。
+
+使用率は `~/.claude/statusline/ctx/<セッション ID>.pct` から読むので、ステータスラインのスクリプトでこのファイルを書き出しておく必要がある。
 
 ```sh
 input=$(cat)
 sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
-tokens=$(printf '%s' "$input" | jq -r '.context_window.current_usage | (.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens) // empty')
-[ -n "$sid" ] && [ -n "$tokens" ] && mkdir -p "$HOME/.claude/statusline/ctx" && printf '%s' "$tokens" >"$HOME/.claude/statusline/ctx/$sid"
+pct=$(printf '%s' "$input" | jq -r '.context_window.used_percentage // empty')
+[ -n "$sid" ] && [ -n "$pct" ] && mkdir -p "$HOME/.claude/statusline/ctx" && printf '%.0f' "$pct" >"$HOME/.claude/statusline/ctx/$sid.pct"
 ```
 
 ## 設定の例

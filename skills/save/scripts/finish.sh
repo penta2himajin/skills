@@ -19,6 +19,7 @@ commit)
     printf '*.jsonl\n????????-????-????-????-????????????/\n' >"$proj/.git/info/exclude"
   fi
   grep -qx save-pending "$proj/.git/info/exclude" || echo save-pending >>"$proj/.git/info/exclude"
+  mkdir -p "$HOME/.claude/save" && : >"$HOME/.claude/save/.stamp-$sid" # guard.sh が、このターンにコミットしたかの判定に使う
   git -C "$proj" add -- save &&
     { git -C "$proj" diff --cached --quiet || git -C "$proj" commit -qm "save: $(echo "$sid" | cut -c1-8) ${3:-}"; } &&
     git -C "$proj" log --oneline -1
