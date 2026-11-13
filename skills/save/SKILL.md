@@ -64,5 +64,5 @@ SessionStart フックが注入した記録は、前の自分が書いた未検�
 - コミット: `scripts/finish.sh commit` が、記録のディレクトリの git リポジトリ（なければ作る）に `save/` をコミットする。
 - 読み戻し: `scripts/restore.sh`（SessionStart）が記録を注入する。compact では同じセッションの記録を、startup / resume / clear では `finish.sh` が置いた `save-pending` ファイルが指す記録を一度だけ注入する。その記録が 24 時間より古ければ注入しない。注入は 9,000 文字まで。
 - 要約の誘導: `scripts/precompact.sh`（PreCompact）が、この「書き方の規則」と記録の構成を compaction の要約への追加指示として出力する。
-- 推奨: `scripts/nudge.sh`（UserPromptSubmit）が 600K トークン超で /save を勧める。値はステータスラインが書く。
+- 自動保存モード: コンテキストの使用率が 50% を超えると、`scripts/nudge.sh`（UserPromptSubmit）が compaction か /clear まで毎ターン、記録の更新と /compact・/clear の推奨を指示する。`scripts/guard.sh`（Stop）は、そのターンに手順 5 のコミットがなければ応答の終了を一度だけ止める。使用率はステータスラインのスクリプトがファイルに書き込む。
 - 設計の根拠: [references/anthropic-docs.md](references/anthropic-docs.md)、[references/context-research.md](references/context-research.md)、[references/github-skills.md](references/github-skills.md)
